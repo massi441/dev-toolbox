@@ -10,11 +10,11 @@ class HotReloader {
 public:
     HotReloader();
 
-    bool tryAttachToProcess();
-    bool launchProcess();
-    bool waitProcessExit();
-    bool copyToSd() const;
-    bool restoreFromSd() const;
+    bool tryAttachToEmu();
+    bool launchEmu();
+    bool waitEmuExit();
+    bool copyModToSd() const;
+    bool restoreModFromSd() const;
 
     const Config& getConfig() const { return *mConfig; }
 

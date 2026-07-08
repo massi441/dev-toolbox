@@ -7,7 +7,7 @@ static std::atomic<bool> isRunning = false;
 BOOL WINAPI ConsoleCloseHandler(DWORD) {
     if (isRunning) {
         std::cout << "Intercepted shutdown, restoring files from sd folder" << std::endl;
-        if (hotReloader.restoreFromSd()) {
+        if (hotReloader.restoreModFromSd()) {
             std::cout << "Successfully restored from sd folder, shutting down..." << std::endl;
         } else {
             std::cout << "Failed to restore from sd folder" << std::endl;
@@ -24,14 +24,14 @@ int main() {
 
     std::cout << "Launching hot reloader for: " << hotReloader.getConfig().emuPath() << std::endl;
 
-    if (!hotReloader.tryAttachToProcess() && !hotReloader.launchProcess()) {
+    if (!hotReloader.tryAttachToEmu() && !hotReloader.launchEmu()) {
         std::cout << "Launched emulator successfully" << std::endl;
         return 1;
     }
 
     std::cout << "Hot reloader initialized, copying files to sd card..." << std::endl;
 
-    if (!hotReloader.copyToSd()) {
+    if (!hotReloader.copyModToSd()) {
         std::cerr << "Failed to copy to sd folder" << std::endl;
         return 1;
     }
@@ -40,14 +40,14 @@ int main() {
 
     std::cout << "Copied files to sd card, waiting for emulator to be shutdown" << std::endl;
 
-    if (!hotReloader.waitProcessExit()) {
+    if (!hotReloader.waitEmuExit()) {
         std::cout << "Failed to wait for emulator shutdown" << std::endl;
         return 1;
     }
 
     std::cout << "Emulator shutdown successfully, restoring files from sd card" << std::endl;
 
-    if (!hotReloader.restoreFromSd()) {
+    if (!hotReloader.restoreModFromSd()) {
         std::cerr << "Failed to restore from sd folder" << std::endl;
         return 1;
     }

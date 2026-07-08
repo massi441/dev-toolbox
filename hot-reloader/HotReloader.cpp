@@ -14,7 +14,7 @@ HotReloader::HotReloader() {
     mConfig->load();
 }
 
-bool HotReloader::tryAttachToProcess() {
+bool HotReloader::tryAttachToEmu() {
     std::filesystem::path path = mConfig->emuPath();
     std::wstring emuW = toWString(path.filename().string());
 
@@ -23,7 +23,7 @@ bool HotReloader::tryAttachToProcess() {
     return mRunningEmuHandle.is_valid();
 }
 
-bool HotReloader::launchProcess() {
+bool HotReloader::launchEmu() {
     STARTUPINFOA startup_info = { .cb = sizeof(STARTUPINFOA) };
 
     return CreateProcessA(
@@ -40,7 +40,7 @@ bool HotReloader::launchProcess() {
     );
 }
 
-bool HotReloader::waitProcessExit() {
+bool HotReloader::waitEmuExit() {
     HANDLE waitHandle = mRunningEmuHandle.is_valid()
         ? mRunningEmuHandle.get()
         : mEmuProcess.hProcess;
@@ -53,28 +53,20 @@ bool HotReloader::waitProcessExit() {
     return true;
 }
 
-bool HotReloader::copyToSd() const {
+bool HotReloader::copyModToSd() const {
     std::error_code ec;
     std::filesystem::remove_all(mConfig->sdPath(), ec);
     std::filesystem::copy(mConfig->modPath(), mConfig->sdPath(), sCopyOptions, ec);
 
-    if (ec) {
-        return false;
-    }
-
-    return true;
+    return !ec;
 }
 
-bool HotReloader::restoreFromSd() const {
+bool HotReloader::restoreModFromSd() const {
     std::error_code ec;
     std::filesystem::remove_all(mConfig->modPath(), ec);
     std::filesystem::copy(mConfig->sdPath(), mConfig->modPath(), sCopyOptions, ec);
 
-    if (ec) {
-        return false;
-    }
-
-    return true;
+    return !ec;
 }
 
 }
