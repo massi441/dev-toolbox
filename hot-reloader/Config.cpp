@@ -6,12 +6,10 @@
 
 namespace ml {
 
-void Config::load() {
+void Config::load(const std::string& fileName) {
     std::filesystem::path currentPath = std::filesystem::current_path();
 
-    currentPath.append("config.txt");
-
-    std::cout << currentPath << std::endl;
+    currentPath.append(fileName);
 
     std::ifstream file = std::ifstream(currentPath);
     if (!file.is_open()) {

@@ -6,46 +6,56 @@ static std::atomic<bool> isRunning = false;
 
 BOOL WINAPI ConsoleCloseHandler(DWORD) {
     if (isRunning) {
-        hotReloader.restoreFromSd();
+        std::cout << "Intercepted shutdown, restoring files from sd folder" << std::endl;
+        if (hotReloader.restoreFromSd()) {
+            std::cout << "Successfully restored from sd folder, shutting down..." << std::endl;
+        } else {
+            std::cout << "Failed to restore from sd folder" << std::endl;
+        }
+
         isRunning = false;
     }
 
-    return TRUE;
+    return FALSE;
 }
 
 int main() {
     SetConsoleCtrlHandler(ConsoleCloseHandler, TRUE);
 
-    std::string input;
-    do {
-        std::cout << "Launching emulator at " << hotReloader.getConfig().emuPath() << std::endl;
+    std::cout << "Launching hot reloader for: " << hotReloader.getConfig().emuPath() << std::endl;
 
-        if (!hotReloader.tryAttachToProcess()) {
-            hotReloader.launchProcess();
-        }
+    if (!hotReloader.tryAttachToProcess() && !hotReloader.launchProcess()) {
+        std::cout << "Launched emulator successfully" << std::endl;
+        return 1;
+    }
 
-        std::cout << "Launched emulator successfully, copying files to sd card" << std::endl;
+    std::cout << "Hot reloader initialized, copying files to sd card..." << std::endl;
 
-        hotReloader.copyToSd();
+    if (!hotReloader.copyToSd()) {
+        std::cerr << "Failed to copy to sd folder" << std::endl;
+        return 1;
+    }
 
-        isRunning = true;
+    isRunning = true;
 
-        std::cout << "Copied files to sd card, waiting for emulator to be shutdown" << std::endl;
+    std::cout << "Copied files to sd card, waiting for emulator to be shutdown" << std::endl;
 
-        hotReloader.waitProcessExit();
+    if (!hotReloader.waitProcessExit()) {
+        std::cout << "Failed to wait for emulator shutdown" << std::endl;
+        return 1;
+    }
 
-        std::cout << "Emulator shutdown successfully, restoring files from sd card" << std::endl;
+    std::cout << "Emulator shutdown successfully, restoring files from sd card" << std::endl;
 
-        hotReloader.restoreFromSd();
+    if (!hotReloader.restoreFromSd()) {
+        std::cerr << "Failed to restore from sd folder" << std::endl;
+        return 1;
+    }
 
-        isRunning = false;
+    isRunning = false;
 
-        std::cout << "Files successfully restored from sd card, press 1 to restart the emulator, or 0 to exit: ";
-
-        std::cout.flush();
-
-        std::cin >> input;
-    } while (input != "0");
+    std::string line;
+    std::getline(std::cin, line);
 
     return 0;
 }

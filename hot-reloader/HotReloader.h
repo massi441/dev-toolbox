@@ -10,17 +10,18 @@ class HotReloader {
 public:
     HotReloader();
 
-    void launchProcess();
     bool tryAttachToProcess();
-    void waitProcessExit();
-    void copyToSd() const;
-    void restoreFromSd() const;
+    bool launchProcess();
+    bool waitProcessExit();
+    bool copyToSd() const;
+    bool restoreFromSd() const;
 
     const Config& getConfig() const { return *mConfig; }
 
 private:
     std::unique_ptr<Config> mConfig;
-    wil::unique_process_information mProcessInfo;
+    wil::unique_handle mRunningEmuHandle; // emu handle if it's already running
+    wil::unique_process_information mEmuProcess; // emu process info if created by the hot reloader
 };
 
 }

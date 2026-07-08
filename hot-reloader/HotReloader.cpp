@@ -1,7 +1,7 @@
 #include "HotReloader.h"
 
 #include <filesystem>
-#include <iostream>
+#include "Util.h"
 
 namespace ml {
 
@@ -14,10 +14,19 @@ HotReloader::HotReloader() {
     mConfig->load();
 }
 
-void HotReloader::launchProcess() {
+bool HotReloader::tryAttachToProcess() {
+    std::filesystem::path path = mConfig->emuPath();
+    std::wstring emuW = toWString(path.filename().string());
+
+    mRunningEmuHandle = findProcess(emuW);
+
+    return mRunningEmuHandle.is_valid();
+}
+
+bool HotReloader::launchProcess() {
     STARTUPINFOA startup_info = { .cb = sizeof(STARTUPINFOA) };
 
-    CreateProcessA(
+    return CreateProcessA(
         mConfig->emuPath().c_str(),
         nullptr,
         nullptr,
@@ -27,38 +36,45 @@ void HotReloader::launchProcess() {
         nullptr,
         nullptr,
         &startup_info,
-        &mProcessInfo
+        &mEmuProcess
     );
 }
 
-bool HotReloader::tryAttachToProcess() {
-    return false;
+bool HotReloader::waitProcessExit() {
+    HANDLE waitHandle = mRunningEmuHandle.is_valid()
+        ? mRunningEmuHandle.get()
+        : mEmuProcess.hProcess;
+
+    WaitForSingleObject(waitHandle, INFINITE);
+
+    mEmuProcess.reset();
+    mRunningEmuHandle.reset();
+
+    return true;
 }
 
-void HotReloader::waitProcessExit() {
-    WaitForSingleObject(mProcessInfo.hProcess, INFINITE);
-
-    mProcessInfo.reset();
-}
-
-void HotReloader::copyToSd() const {
+bool HotReloader::copyToSd() const {
     std::error_code ec;
     std::filesystem::remove_all(mConfig->sdPath(), ec);
     std::filesystem::copy(mConfig->modPath(), mConfig->sdPath(), sCopyOptions, ec);
 
     if (ec) {
-        // std::cerr << "Failed to copy \"" << srcPath << "\" to \"" << destPath << "\": " << ec.message() << std::endl;
+        return false;
     }
+
+    return true;
 }
 
-void HotReloader::restoreFromSd() const {
+bool HotReloader::restoreFromSd() const {
     std::error_code ec;
     std::filesystem::remove_all(mConfig->modPath(), ec);
     std::filesystem::copy(mConfig->sdPath(), mConfig->modPath(), sCopyOptions, ec);
 
     if (ec) {
-        // std::cerr << "Failed to copy \"" << srcPath << "\" to \"" << destPath << "\": " << ec.message() << std::endl;
+        return false;
     }
+
+    return true;
 }
 
 }

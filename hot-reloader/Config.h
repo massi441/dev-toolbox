@@ -7,7 +7,7 @@ namespace ml {
 
 class Config {
 public:
-    void load();
+    void load(const std::string& fileName = "config.txt");
 
     const std::string& emuPath() const { return mEmuPath; }
     const std::string& modPath() const { return mModPath; }
