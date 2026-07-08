@@ -31,9 +31,9 @@ void Config::load() {
         if (key == "emuPath") {
             mEmuPath = std::move(value);
         } else if (key == "modPath") {
-            mModFolderPath = std::move(value);
+            mModPath = std::move(value);
         } else if (key == "sdPath") {
-            mSdFolderPath = std::move(value);
+            mSdPath = std::move(value);
         }
     }
 }

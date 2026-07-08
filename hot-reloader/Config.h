@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace ml {
 
@@ -9,13 +10,15 @@ public:
     void load();
 
     const std::string& emuPath() const { return mEmuPath; }
-    const std::string& modFolderPath() const { return mModFolderPath; }
-    const std::string& sdFolderPath() const { return mSdFolderPath; }
+    const std::string& modPath() const { return mModPath; }
+    const std::string& sdPath() const { return mSdPath; }
+    const std::vector<std::string>& folders() const { return mFolders; }
 
 private:
     std::string mEmuPath;
-    std::string mModFolderPath;
-    std::string mSdFolderPath;
+    std::string mModPath;
+    std::string mSdPath;
+    std::vector<std::string> mFolders;
 };
 
 }
