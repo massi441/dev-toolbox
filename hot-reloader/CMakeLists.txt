@@ -13,6 +13,7 @@ add_executable(hot_reloader
     HotReloader.cpp
     Config.cpp
     Util.cpp
+    resources/hot-reloader.rc
 )
 
 target_link_libraries(hot_reloader PRIVATE WIL::WIL)
