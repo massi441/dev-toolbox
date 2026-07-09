@@ -18,3 +18,5 @@ add_executable(hot_reloader
 
 target_link_libraries(hot_reloader PRIVATE WIL::WIL)
 target_link_libraries(hot_reloader PRIVATE utf8cpp::utf8cpp)
+
+add_compile_definitions(APP_NAME="hot_reloader.exe")

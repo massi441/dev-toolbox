@@ -3,6 +3,8 @@
 #include <iostream>
 #include <semaphore>
 
+#include "Util.h"
+
 static ml::HotReloader hotReloader = ml::HotReloader();
 static std::binary_semaphore closeSem = std::binary_semaphore(0);
 
@@ -17,6 +19,11 @@ BOOL WINAPI ConsoleCloseHandler(DWORD) {
 }
 
 int main() {
+    if (ml::findProcessCount(ml::toWString(APP_NAME)) > 1) {
+        std::cout << "Hot reloader already opened, closing this one..." << std::endl;
+        return 1;
+    }
+
     ShowWindow(GetConsoleWindow(), SW_SHOWMINNOACTIVE);
 
     if (!SetConsoleCtrlHandler(ConsoleCloseHandler, TRUE)) {
