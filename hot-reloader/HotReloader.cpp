@@ -9,6 +9,8 @@ static constexpr std::filesystem::copy_options sCopyOptions =
     std::filesystem::copy_options::recursive |
     std::filesystem::copy_options::overwrite_existing;
 
+static constexpr const char* sBackupsFolderName = "backups";
+
 HotReloader::HotReloader() {
     mConfig = std::make_unique<Config>();
     mConfig->load();
@@ -69,7 +71,7 @@ bool HotReloader::waitEmuExit() {
 
 bool HotReloader::backupMod() const {
     std::filesystem::path backupsPath = mConfig->modPath();
-    backupsPath.replace_filename("backups");
+    backupsPath.replace_filename(sBackupsFolderName);
 
     std::error_code ec;
     if (ml::isExistPath(backupsPath)) {
