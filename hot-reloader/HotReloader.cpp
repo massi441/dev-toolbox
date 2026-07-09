@@ -75,6 +75,7 @@ bool HotReloader::backupMod() const {
 
     std::error_code ec;
     if (ml::isExistPath(backupsPath)) {
+        // remove oldest back up (if present)
         std::filesystem::path maxBackupPath = backupsPath / std::to_string(mConfig->backupDepth());
 
         if (ml::isExistPath(maxBackupPath)) {
@@ -85,6 +86,7 @@ bool HotReloader::backupMod() const {
             }
         }
 
+        // shift all back up folder numbers up by one (starting at the second to last backup)
         for (uint32_t i = mConfig->backupDepth() - 1; i > 0; i--) {
             std::filesystem::path backupPath = backupsPath / std::to_string(i);
             std::filesystem::path newBackupPath = backupsPath / std::to_string(i + 1);
@@ -103,6 +105,14 @@ bool HotReloader::backupMod() const {
     std::filesystem::copy(mConfig->modPath(), newestBackupPath, sCopyOptions, ec);
 
     return !ec;
+}
+
+bool HotReloader::removeLastBackup() const {
+
+}
+
+bool HotReloader::shiftBackups() const {
+
 }
 
 bool HotReloader::copyModFromSd() const {
