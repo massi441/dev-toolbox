@@ -1,0 +1,4 @@
+future tool ideas
+
+- SMO resource browser
+- Ghidra class layout reconstructor
